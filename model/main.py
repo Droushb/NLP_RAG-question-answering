@@ -1,14 +1,24 @@
 import streamlit as st
+import pickle
 from model.questionAnsweringBot import QuestionAnsweringBot
 from model.retriever import Retriever
 
 def process_query(llm_key, query, retrieval_method):
+    # if "retriever" not in st.session_state:
+    #     st.session_state.retriever = Retriever()
+    #     print("Loading and preparing dataset...")
+    #     st.session_state.retriever.load_and_prepare_dataset()
+    #     st.session_state.retriever.prepare_bm25()
+    #     st.session_state.retriever.compute_embeddings()
     if "retriever" not in st.session_state:
-        st.session_state.retriever = Retriever()
-        print("Loading and preparing dataset...")
-        st.session_state.retriever.load_and_prepare_dataset()
-        st.session_state.retriever.prepare_bm25()
-        st.session_state.retriever.compute_embeddings()
+        with st.spinner("Loading precomputed retriever..."):
+            try:
+                import pickle
+                with open("retriever.pkl", "rb") as f:
+                    st.session_state.retriever = pickle.load(f)
+                st.success("Preloaded retriever successfully!")
+            except Exception as e:
+                st.error(f"Failed to load precomputed retriever: {e}")
 
     retriever = st.session_state.retriever
 
@@ -42,3 +52,12 @@ def getPrompt(retrieved_docs, query):
     prompt += f"\nQuery: {query}\n"
 
     return prompt
+
+def prepare_retriever():
+    retriever = Retriever()
+    retriever.load_and_prepare_dataset()
+    retriever.prepare_bm25()
+    retriever.compute_embeddings()
+
+    with open("retriever.pkl", "wb") as f:
+        pickle.dump(retriever, f)

@@ -1,6 +1,6 @@
 import streamlit as st
 from config import CONFIG
-from model.main import process_query
+from model.main import process_query, prepare_retriever
 
 st.title("RAG Question Answering System")
 
@@ -50,9 +50,17 @@ if st.button("Generate Answear"):
                     st.write(f"- {doc}")
                 
                 st.subheader("Generated Answer")
-                st.text_area("Generated Answer", value=answer, height=CONFIG['TEXTAREA_HEIGHT'], disabled=True)
+                st.text_area("Generated Answer", value=answer, height=CONFIG['TEXTAREA_HEIGHT'])
             except Exception as e:
                 st.error(f"An error occurred: {e}")
+
+if st.button("Prepare Retriever"):
+    with st.spinner("Preparing retriever..."):
+        try:
+            prepare_retriever()
+            st.success("Retriever prepared successfully!")
+        except Exception as e:
+            st.error(f"Failed to prepare retriever: {e}")
 
 st.markdown(
     """

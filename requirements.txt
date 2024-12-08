@@ -1,0 +1,6 @@
+streamlit
+openai==0.28
+datasets
+sentence-transformers
+rank-bm25
+pickle
